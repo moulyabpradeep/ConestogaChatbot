@@ -1,2 +1,2 @@
-# Zephyr-7B-beta-RAG-Demo
-Zephyr 7B beta RAG Demo inside a Gradio app powered by BGE Embeddings, ChromaDB, and Zephyr 7B Beta.
+# CONESTOGA CHATBOT BIG DATA PROJECT
+CONESTOGA CHATBOT BIG DATA PROJECT inside a Gradio app powered by BGE Embeddings, ChromaDB, Flet, RAG AND Zephyr 7B Beta.

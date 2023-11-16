@@ -1,0 +1,5 @@
+# PyTorch y dependencias relacionadas (última versión compatible)
+--index-url https://download.pytorch.org/whl/cu117
+torch
+torchvision
+torchaudio

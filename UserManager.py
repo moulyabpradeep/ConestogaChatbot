@@ -25,3 +25,4 @@ class UserManager:
             if password_hash == user[1]:
                 return True
         return False
+    

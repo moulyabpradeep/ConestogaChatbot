@@ -2,6 +2,8 @@ import flet as ft
 import subprocess
 import sys
 from UserManager import UserManager
+import mailing 
+from mailing import verification_code, send_email
 
 def login_user(e, page):
     user_manager = UserManager()
@@ -15,9 +17,13 @@ def login_user(e, page):
         return
 
     if user_manager.validate_login(username, password):
+        user_email = str(username)
+        send_email(user_email,verification_code)
+        subprocess.run[sys.executable, "tfa.py"]
         success_text.value = "Login successful"
         # Ejecuta el script appGPU.py
-        subprocess.run([sys.executable, "appGPU.py"])
+        #subprocess.run([sys.executable, "appGPU.py"])
+        page.add(ft.Text("Welcome to the chatbot"))
         # Borra los datos de los campos de texto
         username_entry.value = ""
         password_entry.value = ""
@@ -35,7 +41,6 @@ def register_user(e, page):
 
 def main(page: ft.Page):
     page.title = "User Login"
-
     global username_entry, password_entry, error_text, success_text, register_text
 
     username_entry = ft.TextField(label="Username")
@@ -48,6 +53,6 @@ def main(page: ft.Page):
     login_button = ft.ElevatedButton("Login", on_click=lambda e: login_user(e, page))
     register_button = ft.ElevatedButton("Register", on_click=lambda e: register_user(e, page))
 
+    
     page.add(username_entry, password_entry, login_button, register_button, error_text, success_text, register_text)
-
 ft.app(target=main)

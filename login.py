@@ -19,7 +19,7 @@ def login_user(e, page):
     if user_manager.validate_login(username, password):
         user_email = str(username)
         send_email(user_email,verification_code)
-        subprocess.run[sys.executable, "tfa.py"]
+        subprocess.run([sys.executable, "tfa.py"])
         success_text.value = "Login successful"
         # Ejecuta el script appGPU.py
         #subprocess.run([sys.executable, "appGPU.py"])

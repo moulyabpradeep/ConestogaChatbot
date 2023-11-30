@@ -7,3 +7,8 @@ langchain
 pypdf 
 PyPDF2
 flet
+smtplib
+random 
+string 
+email 
+re

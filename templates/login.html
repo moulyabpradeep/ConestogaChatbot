@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #3498db; /* Fallback color if the pattern doesn't load */
+            background-image: url('https://www.transparenttextures.com/patterns/axiom-pattern.png'); /* Pattern URL */
+            background-size: auto; /* Adjust the size of the pattern */
+        }
+
+        .login-container {
+            text-align: center;
+            width: 300px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px); /* Adds a blur effect to the background */
+        }
+
+        .login-container input[type="text"],
+        .login-container input[type="password"],
+        .login-container input[type="submit"] {
+            width: calc(100% - 22px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
+
+        .login-container input[type="submit"] {
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+        }
+
+        .login-container input[type="submit"]:hover {
+            background-color: #2980b9;
+        }
+
+        a {
+            text-decoration: none;
+            color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Chatbot Login</h1>
+        <form method="post" action="{{ url_for('login') }}">
+            <label for="email">Email:</label><br> <!-- Updated label -->
+            <input type="text" id="email" name="email"><br> <!-- Updated input ID and name -->
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password"><br><br>
+            <input type="submit" value="Login">
+        </form>
+        <p>Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+    </div>
+</body>
+</html>

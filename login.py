@@ -1,53 +1,121 @@
-import flet as ft
-import subprocess
-import sys
-from UserManager import UserManager
+from flask import Flask, render_template, request, redirect, url_for, flash
+import sqlite3
+import sqlite3
+import smtplib
+import random
+import string
 
-def login_user(e, page):
-    user_manager = UserManager()
 
-    username = username_entry.value
-    password = password_entry.value
+app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'
 
-    if not username or not password:
-        error_text.value = "All fields are required."
-        page.update()
-        return
+# Function to authenticate user login
+def authenticate_user(email, password):
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
 
-    if user_manager.validate_login(username, password):
-        success_text.value = "Login successful"
-        # Ejecuta el script appGPU.py
-        subprocess.run([sys.executable, "appGPU.py"])
-        # Borra los datos de los campos de texto
-        username_entry.value = ""
-        password_entry.value = ""
+    # Check if the user exists in the database
+    cursor.execute('SELECT * FROM users WHERE email=? AND password=?', (email, password))
+    user = cursor.fetchone()
+
+    conn.close()
+    return user
+
+@app.route('/')
+def index():
+    return render_template('login.html')
+
+@app.route('/login', methods=['POST'])
+def login():
+    email = request.form['email']
+    password = request.form['password']
+
+    user = authenticate_user(email, password)
+    if user:
+        # User authenticated, redirect to the tfa page
+        return redirect(url_for('tfa', email=email))
     else:
-        error_text.value = "Invalid username or password."
-        register_text.value = "If you don't have an account, please register."
-        # Ejecuta el script register.py
-        subprocess.run([sys.executable, "register.py"])
+        # User does not exist, show flash message and redirect to registration
+        flash('User does not exist. Please register.')
+        return redirect(url_for('register'))
 
-    page.update()
+def generate_verification_code():
+    code_length = 4  # You can set the desired length of the code
+    return ''.join(random.choices(string.digits, k=code_length))
 
-def register_user(e, page):
-    # Ejecuta el script register.py
-    subprocess.run([sys.executable, "register.py"])
+# Function to send verification code to user's email
+def send_verification_email(email, verification_code):
+    sender_email = 'joel.mendonsa30@gmail.com'  # Your email address
+    sender_password = 'pkhymedcjtuwnied'  # Your email password
 
-def main(page: ft.Page):
-    page.title = "User Login"
+    subject = 'Two-Factor Authentication Code'
+    body = f'Your verification code is: {verification_code}'
 
-    global username_entry, password_entry, error_text, success_text, register_text
+    message = f'Subject: {subject}\n\n{body}'
 
-    username_entry = ft.TextField(label="Username")
-    password_entry = ft.TextField(label="Password", password=True)
+    try:
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, email, message)
+        return True
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return False
 
-    error_text = ft.Text(value="", color="red")
-    success_text = ft.Text(value="", color="green")
-    register_text = ft.Text(value="")
+@app.route('/tfa', methods=['GET', 'POST'])
+def tfa():
+    if request.method == 'POST':
+        entered_code = request.form['verification_code']
+        email = request.form.get('email')
+        verification_code_sent = request.form.get('verification_code_sent')
 
-    login_button = ft.ElevatedButton("Login", on_click=lambda e: login_user(e, page))
-    register_button = ft.ElevatedButton("Register", on_click=lambda e: register_user(e, page))
+        if entered_code == verification_code_sent:
+            return redirect(url_for('success'))
+        else:
+            flash('Invalid verification code. Please try again.')
+            return render_template('tfa.html', email=email, verification_code_sent=verification_code_sent)
 
-    page.add(username_entry, password_entry, login_button, register_button, error_text, success_text, register_text)
+    email = request.args.get('email')
+    verification_code = generate_verification_code()
+    email_sent = send_verification_email(email, verification_code)
+    if email_sent:
+        return render_template('tfa.html', email=email, verification_code_sent=verification_code)
+    else:
+        flash('Failed to send verification email.')
+        return redirect(url_for('index'))
 
-ft.app(target=main)
+@app.route('/success')
+def success():
+    return 'Welcome! Login successful.'
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        # Check if email or password is empty
+        if not email or not password:
+            flash('Email and password are required.')
+        else:
+            # Add any additional validation logic here
+
+            # Insert user into the database
+            register_user(email, password)
+            flash('Registration successful! You can now login.')
+            return redirect(url_for('index'))  # Redirect to login page after successful registration
+
+    return render_template('registration.html')
+
+def register_user(email, password):
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+
+    # Insert new user into the database
+    cursor.execute('INSERT INTO users (email, password) VALUES (?, ?)', (email, password))
+
+    conn.commit()
+    conn.close()
+
+if __name__ == '__main__':
+    app.run(debug=True)

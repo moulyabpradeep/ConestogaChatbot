@@ -57,6 +57,15 @@ retriever = load_vector_store.as_retriever(search_kwargs={"k":1})
 print("######################################################################")
 
 def get_response(input):
+    """
+    Retrieves a response to the given input query using a retrieval-based question answering model.
+
+    Args:
+        input (str): The input query.
+
+    Returns:
+        str: The response to the input query.
+    """
     query = input
     chain_type_kwargs = {"prompt": prompt}
     qa = RetrievalQA.from_chain_type(
@@ -79,7 +88,7 @@ input = gr.Text(
                 placeholder="Enter your prompt",
                 container=False,
             )
-
+    
 iface = gr.Interface(
     fn=get_response, 
     inputs=input, 

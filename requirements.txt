@@ -6,4 +6,3 @@ chromadb
 langchain
 pypdf 
 PyPDF2
-flet

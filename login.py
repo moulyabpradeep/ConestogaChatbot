@@ -4,6 +4,16 @@ import sys
 from UserManager import UserManager
 
 def login_user(e, page):
+    """
+    Logs in a user and performs necessary actions based on the login result.
+
+    Args:
+        e: The event object.
+        page: The page object.
+
+    Returns:
+        None
+    """
     user_manager = UserManager()
 
     username = username_entry.value
@@ -16,21 +26,21 @@ def login_user(e, page):
 
     if user_manager.validate_login(username, password):
         success_text.value = "Login successful"
-        # Ejecuta el script appGPU.py
+        # Run the appGPU.py script
         subprocess.run([sys.executable, "appGPU.py"])
-        # Borra los datos de los campos de texto
+        # Clear the text fields
         username_entry.value = ""
         password_entry.value = ""
     else:
         error_text.value = "Invalid username or password."
         register_text.value = "If you don't have an account, please register."
-        # Ejecuta el script register.py
+        # Run the register.py script
         subprocess.run([sys.executable, "register.py"])
 
     page.update()
 
 def register_user(e, page):
-    # Ejecuta el script register.py
+    # Run the register.py script
     subprocess.run([sys.executable, "register.py"])
 
 def main(page: ft.Page):

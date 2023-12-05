@@ -20,13 +20,23 @@ def main(page: ft.Page):
 
     select_button = ft.ElevatedButton("Select PDF File", on_click=lambda _: pick_files_dialog.pick_files(allowed_extensions=["pdf"]))
     
-    # Centrar los elementos en la Column
+    # Center the elements in the Column
     page.add(ft.Column([
         select_button,
         status_text
     ], alignment=ft.MainAxisAlignment.CENTER))
 
 def process_pdf_file(file_path, status_text):
+    """
+    Process a PDF file and create a vector store.
+
+    Args:
+        file_path (str): The path to the PDF file.
+        status_text: An object representing the status text.
+
+    Returns:
+        None
+    """
     model_name = "BAAI/bge-large-en"
     model_kwargs = {'device': 'cpu'}
     encode_kwargs = {'normalize_embeddings': False}

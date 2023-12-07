@@ -117,5 +117,31 @@ def register_user(email, password):
     conn.commit()
     conn.close()
 
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    if request.method == 'POST':
+        passcode = request.form['passcode']
+        if passcode == '123456':  # Change passcode as needed
+            return redirect(url_for('admin_success'))
+        else:
+            flash('Invalid passcode. Please try again.')
+    return render_template('admin.html')
+
+@app.route('/admin/success')
+def admin_success():
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+
+    # Select emails and IDs from the users table
+    cursor.execute('SELECT id, email FROM users')
+    users_data = cursor.fetchall()
+
+    conn.close()
+
+    # Render admin success template with user data
+    return render_template('admin_success.html', users=users_data)
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+

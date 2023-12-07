@@ -1,131 +1,134 @@
-from langchain import PromptTemplate, LLMChain
-from langchain.llms import CTransformers
+#app.py
 import os
+import flet as ft
+from login_view import LoginView
+from pdf_processing_view import PDFProcessingView
+from register_view import RegisterView
+from main_app_view import MainAppView
+from pdf_processing_view import PDFProcessingView  # Cambia 'PdfProcessingView' a 'PDFProcessingView'
+from user_manager import UserManager, is_valid_email
+from user import User
+# Importaciones adicionales para el procesamiento de PDF
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
-from langchain.chains import RetrievalQA
 from langchain.embeddings import HuggingFaceBgeEmbeddings
-from io import BytesIO
 from langchain.document_loaders import PyPDFLoader
-import gradio as gr
 
 
-local_llm = "zephyr-7b-beta.Q5_K_S.gguf"
-
-config = {
-    'max_new_tokens': 1024,
-    'repetition_penalty': 1.1,
-    'temperature': 0.1,
-    'top_k': 50,
-    'top_p': 0.9,
-    'stream': True,
-    'threads': int(os.cpu_count() / 2)
-}
-
-llm = CTransformers(
-    model=local_llm,
-    model_type="mistral",
-    lib="avx2",  # for CPU use
-    **config
-)
-
-print("LLM Initialized...")
 
 
-prompt_template = """Use the following pieces of information to answer the user's question.
-If you don't know the answer, just say that you don't know, don't try to make up an answer.
-
-Context: {context}
-Question: {question}
-
-Only return the helpful answer below and nothing else.
-Helpful answer:
-"""
-
-model_name = "BAAI/bge-large-en"
-model_kwargs = {'device': 'cpu'}
-encode_kwargs = {'normalize_embeddings': False}
-embeddings = HuggingFaceBgeEmbeddings(
-    model_name=model_name,
-    model_kwargs=model_kwargs,
-    encode_kwargs=encode_kwargs
-)
 
 
-prompt = PromptTemplate(template=prompt_template, input_variables=['context', 'question'])
-load_vector_store = Chroma(persist_directory="stores/pet_cosine", embedding_function=embeddings)
-retriever = load_vector_store.as_retriever(search_kwargs={"k": 1})
 
-print("######################################################################")
+def change_route(page, route):
+    page.route = route
 
-chain_type_kwargs = {"prompt": prompt}
-
-sample_prompts = [
-    "what is the fastest speed for a greyhound dog?",
-    "Why should we not feed chocolates to the dogs?",
-    "Name two factors which might contribute to why some dogs might get scared?"
-]
-
-
-def get_response(input):
-    """
-    Get the response to the user's input query using the RetrievalQA model.
-
-    Args:
-        input (str): The user's input query.
-
-    Returns:
-        str: The response to the user's query.
-    """
-    query = input
-    chain_type_kwargs = {"prompt": prompt}
-    qa = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=retriever,
-        return_source_documents=True,
-        chain_type_kwargs=chain_type_kwargs,
-        verbose=True
+def build_login_view(page):
+    login_view = LoginView(
+        on_login_clicked=lambda e: login_user(login_view, page),
+        on_register_clicked=lambda e: build_register_view(page)
     )
-    response = qa(query)
-    response=response.get('result')
-    return response
+    page.controls.clear()
+    page.controls.append(login_view)
+    page.update()
 
 
-input = gr.Text(
-    label="Prompt",
-    show_label=False,
-    max_lines=1,
-    placeholder="Enter your prompt",
-    container=False,
-)
+def login_user(view, page):
+    user_manager = UserManager()
+    username = view.username_entry.value
+    password = view.password_entry.value
 
-iface = gr.Interface(
-    fn=get_response,
-    inputs=input,
-    outputs="text",
-    title="My Dog PetCare Bot",
-    description="This is a RAG implementation based on Zephyr 7B Beta LLM.",
-    examples=sample_prompts,
-    allow_flagging=False
-)
+    if not username or not password:
+        view.show_error_message("All fields are required.")
+        return
 
-iface.launch()
+    user = user_manager.validate_login(username, password)
+    if user:
+        # Define una función para manejar el evento de clic en el botón de procesamiento
+        def on_process_clicked(file_path, project_name, user_email, status_text):
+            process_pdf_file(file_path, project_name, user_email, status_text)  # Llama a la función process_pdf_file
+
+        pdf_processing_view = PDFProcessingView(on_process_clicked, user[3], None, page)  # Create PDFProcessingView first
+        main_app_view = MainAppView(user, page, view, pdf_processing_view)  # Pass PDFProcessingView to MainAppView
+        pdf_processing_view.main_app_view = main_app_view  # Set main_app_view in PDFProcessingView
+        build_main_app_view(page, main_app_view)
+    else:
+        view.show_error_message("Incorrect username or password.")
+
+def build_register_view(page):
+    register_view = RegisterView(
+        on_register_clicked=lambda e: register_user(register_view, page),
+        on_back_clicked=lambda e: build_login_view(page)
+    )
+    page.controls.clear()
+    page.controls.append(register_view)
+    page.update()
+
+def register_user(view, page):
+    user_manager = UserManager()
+    username = view.username_entry.value
+    password = view.password_entry.value
+    email = view.email_entry.value
+
+    if not username or not password or not email:
+        view.show_error_message("All fields are required.")
+        page.update()
+        return
+
+    if not is_valid_email(email):
+        view.show_error_message("Invalid email address.")
+        page.update()
+        return
+
+    if user_manager.add_user(username, password, email):
+        view.show_success_message_and_clear_fields()
+    else:
+        view.show_error_message("Email already registered or username already exists")
+    
+    page.update()
+
+def process_pdf_file(file_path, project_name, user_email, status_text):
+    status_text.value = "Saving vector..."
+    status_text.update()
+
+    directory = f"stores/{user_email}/{project_name}"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    model_name = "BAAI/bge-large-en"
+    model_kwargs = {'device': 'cpu'}
+    encode_kwargs = {'normalize_embeddings': False}
+    embeddings = HuggingFaceBgeEmbeddings(model_name=model_name, model_kwargs=model_kwargs, encode_kwargs=encode_kwargs)
+
+    loader = PyPDFLoader(file_path)
+    documents = loader.load()
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+    texts = text_splitter.split_documents(documents)
+
+    vector_store = Chroma.from_documents(texts, embeddings, collection_metadata={"hnsw:space": "cosine"}, persist_directory=directory)
+    
+    status_text.value = "Your database has been successfully created."
+    status_text.update()
 
 
+def build_pdf_processing_view(page, user_email):
+    pdf_processing_view = PDFProcessingView(
+        on_process_clicked=process_pdf_file,
+        user_email=user_email
+    )
+    page.controls.clear()
+    page.controls.append(pdf_processing_view)
+    page.update()
 
+    
 
+def build_main_app_view(page, main_app_view):
+    page.controls.clear()
+    page.controls.append(main_app_view)
+    page.update()
 
+def main(page: ft.Page):
+    build_login_view(page)
 
-
-
-
-
-            
-
-
-
-
-
-
-
+if __name__ == "__main__":
+    ft.app(target=main)

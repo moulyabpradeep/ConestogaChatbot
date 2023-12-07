@@ -88,6 +88,7 @@ def get_response(input):
         verbose=True
     )
     response = qa(query)
+    response=response.get('result')
     return response
 
 

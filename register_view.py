@@ -36,9 +36,9 @@ class RegisterView(ft.UserControl):
         self.email_entry.value = ""
         self.username_entry.value = ""
         self.password_entry.value = ""
-        self.update()  # Actualizar el UserControl
+        self.update()  # Update the UserControl
 
     def show_error_message(self, message):
         self.error_text.value = message
-        self.update()  # Actualizar el UserControl
+        self.update()  # Update the UserControl
 

@@ -11,10 +11,10 @@ class UserManager:
         self.conn = sqlite3.connect("users.db")
         self.cursor = self.conn.cursor()
 
-        # Verifica si la tabla 'users' existe
+        # Check if the 'users' table exists
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
         if self.cursor.fetchone() is None:
-            # Si la tabla 'users' no existe, créala
+            # If the 'users' table does not exist, create it
             self.cursor.execute("""
                 CREATE TABLE users (
                     id INTEGER PRIMARY KEY,
@@ -41,10 +41,10 @@ class UserManager:
         user = self.cursor.fetchone()
         return user is not None
 
-    def add_user(self, username, password, email, role):  # Corregido de name a password
+    def add_user(self, username, password, email, role):  # Corrected from name to password
         if self.is_email_registered(email) or self.is_username_registered(username):
             return False
-        self.cursor.execute("INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)", (username, password, email, role))  # Corregido de name a password
+        self.cursor.execute("INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)", (username, password, email, role))  # Corrected from name to password
         self.conn.commit()
         return True
 

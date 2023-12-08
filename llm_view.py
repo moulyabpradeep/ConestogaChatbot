@@ -87,8 +87,8 @@ class LLMView(ft.UserControl):
                 verbose=True
             )
             response = qa(query)
-            print(response)  # Imprimir el diccionario response completo
-            # Extraer y retornar solo la parte del resultado de la respuesta
+            print(response)  # Print the complete response dictionary
+            # Extract and return only the result part of the response
             responses.append(response.get("result", "No response found."))
         
         # Join the responses together
@@ -97,10 +97,10 @@ class LLMView(ft.UserControl):
     def submit_query(self):
         response = self.get_response(self.input_prompt.value)
         self.output_display.value = response
-        self.page.controls.append(self.output_display)  # Asegúrate de que output_display está en la página
+        self.page.controls.append(self.output_display)  # Make sure output_display is on the page
         self.page.update()
-        self.input_prompt.value = ""  # Limpiar el campo de entrada
-        self.input_prompt.focus()  # Poner el foco en el campo de entrada
+        self.input_prompt.value = ""  # Clear input field
+        self.input_prompt.focus()  # Put focus on the input field
 
 
     """def on_back_clicked(self, _):

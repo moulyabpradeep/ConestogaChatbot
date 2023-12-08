@@ -46,7 +46,7 @@ class UserManager:
 
     def validate_login(self, username, password):
         """
-        Validates a user's login credentials.
+        Validates a user's login credentials here.
 
         Args:
             username (str): The username of the user.

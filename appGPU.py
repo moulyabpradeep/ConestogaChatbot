@@ -19,7 +19,7 @@ config = {
     'top_p': 0.9,
     'stream': True,
     'threads': int(os.cpu_count() / 2),
-    'gpu_layers': 1000  # Añadir esta línea
+    'gpu_layers': 1000  # Add this line
 }
 
 llm = CTransformers(
@@ -42,7 +42,7 @@ Helpful answer:
 """
 
 model_name = "BAAI/bge-large-en"
-model_kwargs = {'device': 'cuda'}  # Cambiar a 'cuda' para GPU
+model_kwargs = {'device': 'cuda'}  # Switch to 'cuda' for GPU
 encode_kwargs = {'normalize_embeddings': False}
 embeddings = HuggingFaceBgeEmbeddings(
     model_name=model_name,

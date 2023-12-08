@@ -23,7 +23,7 @@ def register_user(e, page):
         return
 
     if user_manager.add_user(username, password, name, email):
-        success_text.value = "User created successfully"
+        success_text.value = "User created successfully."
         # Clear the text fields
         username_entry.value = ""
         password_entry.value = ""

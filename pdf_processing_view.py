@@ -31,7 +31,7 @@ class PDFProcessingView(ft.UserControl):
             self.selected_file_text.value = f"Selected file: {self.file_path}"  # Update the selected file text
             self.selected_file_text.update()
         else:
-            self.status_text.value = "File selection cancelled!"
+            self.status_text.value = "File selection cancelled..!"
             self.selected_file_text.value = ""  # Clear the selected file text
             self.selected_file_text.update()
         self.update()
@@ -42,7 +42,7 @@ class PDFProcessingView(ft.UserControl):
             self.status_text.update()
             threading.Thread(target=self.process_pdf_file, args=(self.file_path, self.project_name_input.value, self.user_email, self.status_text)).start()
         else:
-            self.status_text.value = "No file selected!"
+            self.status_text.value = "No file selected..!"
             self.status_text.update()
 
     def on_back_clicked(self, _):

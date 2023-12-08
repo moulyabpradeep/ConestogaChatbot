@@ -9,7 +9,7 @@ import gradio as gr
 from getpass import getpass
 import os
 from UserManager import UserManager
-# Asegúrate de que la clase UserManager esté definida en otro lugar del código
+# Make sure the UserManager class is defined elsewhere in the code
 
 # Initialize the LLM
 local_llm = "zephyr-7b-beta.Q5_K_S.gguf"
@@ -77,7 +77,8 @@ input = gr.Text(
     container=False,
 )
 
-# User Manager for authentication (Asegúrate de que esta clase esté definida e importada)
+# User Manager for authentication 
+# (This class is defined and imported)
 user_manager = UserManager()
 
 # User authentication

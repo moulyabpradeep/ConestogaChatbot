@@ -33,7 +33,7 @@ def login_user(e, page):
         password_entry.value = ""
     else:
         error_text.value = "Invalid username or password."
-        register_text.value = "If you don't have an account, please register."
+        register_text.value = "If you don't have an account, please register..!"
         # Run the register.py script
         subprocess.run([sys.executable, "register.py"])
 

@@ -1,22 +1,17 @@
-#app.py
 import os
 import flet as ft
 from login_view import LoginView
 from pdf_processing_view import PDFProcessingView
 from register_view import RegisterView
 from main_app_view import MainAppView
-from pdf_processing_view import PDFProcessingView  # Cambia 'PdfProcessingView' a 'PDFProcessingView'
+from pdf_processing_view import PDFProcessingView  # Change 'PdfProcessingView' a 'PDFProcessingView'
 from user_manager import UserManager, is_valid_email
 from user import User
-# Importaciones adicionales para el procesamiento de PDF
+# Additional imports for PDF processing
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from langchain.embeddings import HuggingFaceBgeEmbeddings
 from langchain.document_loaders import PyPDFLoader
-
-
-
-
 
 
 
@@ -44,9 +39,9 @@ def login_user(view, page):
 
     user = user_manager.validate_login(username, password)
     if user:
-        # Define una función para manejar el evento de clic en el botón de procesamiento
+        # Define a function to handle the click event on the render button
         def on_process_clicked(file_path, project_name, user_email, status_text):
-            process_pdf_file(file_path, project_name, user_email, status_text)  # Llama a la función process_pdf_file
+            process_pdf_file(file_path, project_name, user_email, status_text)  # Call the process_pdf_file function
 
         pdf_processing_view = PDFProcessingView(on_process_clicked, user[3], None, page)  # Create PDFProcessingView first
         main_app_view = MainAppView(user, page, view, pdf_processing_view)  # Pass PDFProcessingView to MainAppView

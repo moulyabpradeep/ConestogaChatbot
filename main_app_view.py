@@ -49,7 +49,7 @@ class MainAppView(ft.UserControl):
             self.page.controls.append(llm_view)
             self.page.update()
         else:
-            # Mensaje de error si no se selecciona un chatbot
+            # Error message if a chatbot is not selected
             self.page.show_snackbar(ft.Snackbar("Please select a chatbot before proceeding.", open=True))
 
     def on_chatbot_selected(self, event):
